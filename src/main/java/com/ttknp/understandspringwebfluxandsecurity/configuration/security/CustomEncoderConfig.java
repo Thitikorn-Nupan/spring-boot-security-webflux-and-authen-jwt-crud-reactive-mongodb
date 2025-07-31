@@ -14,13 +14,13 @@ import java.util.Base64;
 @Component
 public class CustomEncoderConfig implements PasswordEncoder {
 
-    private String secret;
-    private Integer iteration; // n. การวนซ้ำ
-    private Integer keyLength;
+    private final String secret;
+    private final Integer iteration; // n. การวนซ้ำ
+    private final Integer keyLength;
 
-    public CustomEncoderConfig(@Value("${springbootwebfluxjjwt.password.encoder.secret}")String secret,
-                               @Value("${springbootwebfluxjjwt.password.encoder.iteration}") Integer iteration,
-                               @Value("${springbootwebfluxjjwt.password.encoder.keyLength}") Integer keyLength) {
+    public CustomEncoderConfig(@Value("${jwt.password.encoder.secret}")String secret,
+                               @Value("${jwt.password.encoder.iteration}") Integer iteration,
+                               @Value("${jwt.password.encoder.keyLength}") Integer keyLength) {
         this.secret = secret;
         this.iteration = iteration;
         this.keyLength = keyLength;
@@ -30,7 +30,7 @@ public class CustomEncoderConfig implements PasswordEncoder {
      More info (https://www.owasp.org/index.php/Hashing_Java) 404 :(
      */
     @Override
-    public String encode(CharSequence cs) {
+    public String encode(CharSequence cs) { // cs is plain text
         try {
             byte[] result = SecretKeyFactory
                     .getInstance("CUSTOMWithHmacSHA512")

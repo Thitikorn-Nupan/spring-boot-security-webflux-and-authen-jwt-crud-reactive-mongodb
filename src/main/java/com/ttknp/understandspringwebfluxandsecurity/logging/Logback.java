@@ -7,7 +7,7 @@ public class Logback {
 
     public Logger log;
 
-    public Logback(Class c) {
+    public Logback(Class<?> c) {
         log = LoggerFactory.getLogger(c);
     }
 }

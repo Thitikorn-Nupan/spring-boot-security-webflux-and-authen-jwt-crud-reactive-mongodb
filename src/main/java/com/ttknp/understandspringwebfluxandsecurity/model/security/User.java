@@ -1,8 +1,6 @@
 package com.ttknp.understandspringwebfluxandsecurity.model.security;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,16 +10,18 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+@Setter
 @Document(collection = "users")
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements UserDetails {
 
     @Id
+    @Getter
     private Long id;
     private String username;
     private String password;
+    @Getter
     private String roles;
 
 

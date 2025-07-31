@@ -16,7 +16,8 @@ import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 */
 @Configuration
 public class MongoDBDocumentConfig implements InitializingBean  {
-    private MappingMongoConverter mappingMongoConverter; // for ignoring "_class" property
+
+    private final MappingMongoConverter mappingMongoConverter; // for ignoring "_class" property
 
     @Autowired
     public MongoDBDocumentConfig(MappingMongoConverter mappingMongoConverter) {

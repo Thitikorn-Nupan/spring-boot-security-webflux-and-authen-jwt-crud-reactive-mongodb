@@ -3,8 +3,8 @@ package com.ttknp.understandspringwebfluxandsecurity.controller;
 import com.ttknp.understandspringwebfluxandsecurity.logging.Logback;
 import com.ttknp.understandspringwebfluxandsecurity.model.Post;
 import com.ttknp.understandspringwebfluxandsecurity.service.PostService;
-import com.ttknpdev.constant.CommonStatus;
-import com.ttknpdev.entity.ResponseObject;
+import com.ttknp.responsecustomservice.constant.CommonStatus;
+import com.ttknp.responsecustomservice.entity.ResponseObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,11 +12,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping(value = "/api")
+@RequestMapping(value = "/api/posts")
 public class PostController {
 
     private final PostService postService;
-    private Logback logback;
+    private final Logback logback;
 
     @Autowired
     public PostController(PostService postService) {
@@ -25,7 +25,7 @@ public class PostController {
     }
 
     @GetMapping(value = "/server")
-    private ResponseEntity<ResponseObject> server() {
+    private ResponseEntity<ResponseObject<String>> server() {
         return ResponseEntity.ofNullable(ResponseObject.<String>builder()
                 .status((short) CommonStatus.OK[0])
                 .info((String) CommonStatus.OK[1])
@@ -61,11 +61,11 @@ public class PostController {
     //         }
     //         */
     //    }
-    @GetMapping(value = "/posts")
+    @GetMapping(value = {"/",""})
     private Mono<ResponseEntity<Flux<Post>>> reads() {
-        logback.log.debug("posts stores {}",postService.getPosts());
-        // ResponseEntity.status(200).body(postService.getPosts())
-        return Mono.just(ResponseEntity.status(200).body(postService.getPosts()));
+        return Mono.just(ResponseEntity
+                .status((short) CommonStatus.OK[0])
+                .body(postService.getPosts()));
     }
     /**
      still work
@@ -85,26 +85,32 @@ public class PostController {
     ]
     */
 
-    @GetMapping(value = "/post")
+    @GetMapping(value = "/search")
     private ResponseEntity<Mono<Post>> read(@RequestParam long id) {
         return ResponseEntity
-                .status(200)
+                .status((short) CommonStatus.OK[0])
                 .body(postService.getPost(id));
     }
 
-    @PostMapping(value = "/post")
+    @PostMapping(value = "/save")
     private ResponseEntity<Mono<Post>> create(@RequestBody Mono<Post> postMono) {
-        return ResponseEntity.status(201).body(postService.createPost(postMono));
+        return ResponseEntity
+                .status((short) CommonStatus.ACCEPTED[0])
+                .body(postService.createPost(postMono));
     }
 
-    @PutMapping(value = "/post")
+    @PutMapping(value = "/edit")
     private ResponseEntity<Mono<Boolean>> update(@RequestBody Mono<Post> postMono, @RequestParam long id) {
-        return ResponseEntity.status(202).body(postService.updatePost(id,postMono));
+        return ResponseEntity
+                .status((short) CommonStatus.ACCEPTED[0])
+                .body(postService.updatePost(id,postMono));
     }
 
-    @DeleteMapping(value = "/post")
+    @DeleteMapping(value = "/remove")
     private ResponseEntity<Mono<Boolean>> delete( @RequestParam long id) {
-        return ResponseEntity.status(202).body(postService.deletePost(id));
+        return ResponseEntity
+                .status((short) CommonStatus.ACCEPTED[0])
+                .body(postService.deletePost(id));
     }
 
     @GetMapping("/protected")

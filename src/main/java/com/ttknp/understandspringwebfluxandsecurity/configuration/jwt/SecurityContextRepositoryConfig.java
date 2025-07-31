@@ -18,12 +18,12 @@ import reactor.core.publisher.Mono;
 @Component
 public class SecurityContextRepositoryConfig implements ServerSecurityContextRepository {
 
-    private AuthenticationManagerConfig authenticationManagerConfig;
-    private Logback logback;
+    private final AuthenticationManagerServiceConfig authenticationManagerServiceConfig;
+    private final Logback logback;
 
     @Autowired
-    public SecurityContextRepositoryConfig(AuthenticationManagerConfig authenticationManagerConfig) {
-        this.authenticationManagerConfig = authenticationManagerConfig;
+    public SecurityContextRepositoryConfig(AuthenticationManagerServiceConfig authenticationManagerServiceConfig) {
+        this.authenticationManagerServiceConfig = authenticationManagerServiceConfig;
         logback = new Logback(SecurityContextRepositoryConfig.class);
     }
 
@@ -41,8 +41,8 @@ public class SecurityContextRepositoryConfig implements ServerSecurityContextRep
                 .flatMap(authHeader -> {
                     String token = authHeader.substring(7);
                     Authentication auth = new UsernamePasswordAuthenticationToken(token, token);
-                    // logback.log.debug("Authenticated user (auth.getPrincipal()) : {}", auth.getPrincipal()); // return your claims as token
-                    return this.authenticationManagerConfig.authenticate(auth).map(SecurityContextImpl::new);
+                    logback.log.debug("Authenticated user (auth.getPrincipal()) : {}", auth.getPrincipal()); // return your claims as token
+                    return this.authenticationManagerServiceConfig.authenticate(auth).map(SecurityContextImpl::new);
                 });
     }
 }

@@ -1,7 +1,5 @@
 package com.ttknp.understandspringwebfluxandsecurity.service.security;
 
-
-
 import com.ttknp.understandspringwebfluxandsecurity.model.security.User;
 import com.ttknp.understandspringwebfluxandsecurity.repository.security.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

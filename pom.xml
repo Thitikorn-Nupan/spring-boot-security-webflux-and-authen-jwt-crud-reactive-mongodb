@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.ttknp</groupId>
-    <artifactId>understand-spring-webflux-and-security</artifactId>
+    <artifactId>understand-spring-webflux-integrate-security-and-jwt</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>understand-spring-webflux-integrate-security</name>
-    <description>understand-spring-webflux-integrate-security</description>
+    <name>understand-spring-webflux-integrate-security-and-jwt</name>
+    <description>understand-spring-webflux-integrate-security-and-jwt</description>
     <url/>
     <licenses>
         <license/>
@@ -67,9 +67,20 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--<dependency>
+         <groupId>com.ttknpdev</groupId>
+         <artifactId>ttknpdev-response-api-without-lombok</artifactId>
+         <version>0.0.1-SNAPSHOT</version>
+     </dependency>-->
+        <!--
+          **** importance
+          import custom module/dependency
+          if you do not you can only access the class but not dependency of child module !!!
+          and don't forget import your jar to main project if you do not it can't see jar target !!!
+         -->
         <dependency>
-            <groupId>com.ttknpdev</groupId>
-            <artifactId>ttknpdev-response-api-without-lombok</artifactId>
+            <groupId>com.ttknp</groupId>
+            <artifactId>response-custom-service</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
@@ -79,7 +90,7 @@
         </dependency>
 
         <!-- We need a library to encode, decode, and validate the JWT token in the application -->
-        <dependency>
+        <!--<dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
             <version>0.11.5</version>
@@ -88,7 +99,7 @@
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
             <version>0.11.5</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
@@ -146,6 +157,30 @@
                     </excludes>-->
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>3.1.3</version>
+                <executions>
+
+                    <execution>
+                        <id>response-custom-service</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <groupId>com.ttknp</groupId>
+                            <artifactId>response-custom-service</artifactId>
+                            <version>0.0.1-SNAPSHOT</version>
+                            <packaging>jar</packaging>
+                            <file>${basedir}/libs/response-custom-service-0.0.1-SNAPSHOT.jar</file>
+                        </configuration>
+                    </execution>
+
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 

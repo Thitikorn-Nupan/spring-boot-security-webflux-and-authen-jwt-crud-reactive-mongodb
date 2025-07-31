@@ -14,8 +14,8 @@ import java.util.Date;
 @Service
 public class PostDTO implements PostService {
 
-    private PostRepository postRepository;
-    private Logback logback;
+    private final PostRepository postRepository;
+    private final Logback logback;
 
     @Autowired
     public PostDTO(PostRepository postRepository) {
@@ -47,7 +47,7 @@ public class PostDTO implements PostService {
             return postRepository.findById(id).flatMap((postSearch) -> {
                 post.setId(postSearch.getId());
                 post.setDatetime(postSearch.getDatetime());
-                logback.log.debug("post exists {}", post);
+                // logback.log.debug("post exists {}", post);
                 return postRepository.save(post).then(Mono.just(true));
             }).hasElement(); // it will return false if didn't found id
         });

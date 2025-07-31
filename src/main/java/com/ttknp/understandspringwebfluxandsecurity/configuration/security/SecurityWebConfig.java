@@ -1,6 +1,6 @@
 package com.ttknp.understandspringwebfluxandsecurity.configuration.security;
 
-import com.ttknp.understandspringwebfluxandsecurity.configuration.jwt.AuthenticationManagerConfig;
+import com.ttknp.understandspringwebfluxandsecurity.configuration.jwt.AuthenticationManagerServiceConfig;
 import com.ttknp.understandspringwebfluxandsecurity.configuration.jwt.SecurityContextRepositoryConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -17,29 +17,28 @@ import reactor.core.publisher.Mono;
 @EnableWebFluxSecurity
 public class SecurityWebConfig {
 
-    private AuthenticationManagerConfig authenticationManagerConfig;
-    private SecurityContextRepositoryConfig securityContextRepositoryConfig;
+    private final AuthenticationManagerServiceConfig authenticationManagerServiceConfig;
+    private final SecurityContextRepositoryConfig securityContextRepositoryConfig;
 
     @Autowired
-    public SecurityWebConfig(AuthenticationManagerConfig authenticationManagerConfig, SecurityContextRepositoryConfig securityContextRepositoryConfig) {
-        this.authenticationManagerConfig = authenticationManagerConfig;
+    public SecurityWebConfig(AuthenticationManagerServiceConfig authenticationManagerServiceConfig, SecurityContextRepositoryConfig securityContextRepositoryConfig) {
+        this.authenticationManagerServiceConfig = authenticationManagerServiceConfig;
         this.securityContextRepositoryConfig = securityContextRepositoryConfig;
     }
 
-    // ** SecurityWebFilterChain for spring webflux
-    // ** it's kind of same config SecurityFilterChain
+    // ** SecurityWebFilterChain for spring webflux ** it's kind of same config SecurityFilterChain
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         // same pattern with SecurityFilterChain config
         return http
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers(HttpMethod.GET,"/api/server","/api/auth/login").permitAll()
-                        .pathMatchers(HttpMethod.GET,"/api/auth/login").permitAll()
-                        .pathMatchers(HttpMethod.GET,"/api/post","api/posts").hasAnyRole("ADMIN", "USER")
-                        .pathMatchers(HttpMethod.POST,"/api/post").hasRole("ADMIN")
-                        .pathMatchers(HttpMethod.PUT,"/api/post").hasRole("ADMIN")
-                        .pathMatchers(HttpMethod.DELETE,"/api/post").hasRole("ADMIN")
-                        .anyExchange().authenticated()
+                        .pathMatchers(HttpMethod.GET,"/api/posts/server").permitAll()
+                        .pathMatchers(HttpMethod.POST,"/api/auth/login").permitAll()
+                        .pathMatchers(HttpMethod.GET,"/api/posts/search","/api/posts","/api/posts/").hasAnyRole("ADMIN", "USER")
+                        .pathMatchers(HttpMethod.POST,"/api/posts/save").hasRole("ADMIN")
+                        .pathMatchers(HttpMethod.PUT,"/api/posts/edit").hasRole("ADMIN")
+                        .pathMatchers(HttpMethod.DELETE,"/api/posts/remove").hasRole("ADMIN")
+                        .anyExchange().authenticated() // all another authenticated without roles
                 )
                 .exceptionHandling()
                 .authenticationEntryPoint(
@@ -50,18 +49,13 @@ public class SecurityWebConfig {
                         Mono.fromRunnable(() -> serverWebExchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN))
                 )
                 .and()
-                .csrf().disable() // this line work for allowed you can work with another http method as Post , Put , Delete
-                .formLogin().disable() // disable basic form (ui) login
-                .httpBasic().disable() // disable basic form (see on postman) authenticate
-                .authenticationManager(authenticationManagerConfig)
+                .csrf().disable() // ** this line work for allowed you can work with another http method as Post , Put , Delete
+                .formLogin().disable() // ** disable basic form (ui) login
+                .httpBasic().disable() // ** disable basic form (see on postman) authenticate
+                .authenticationManager(authenticationManagerServiceConfig)
                 .securityContextRepository(securityContextRepositoryConfig)
                 .authorizeExchange()
                 .and()
                 .build();
-        /*
-         // have to disable if you have worked with jwt authenticate
-         .httpBasic(withDefaults()) // using basic authenticate
-         .formLogin(withDefaults()) // using basic form (ui) login
-         */
     }
 }

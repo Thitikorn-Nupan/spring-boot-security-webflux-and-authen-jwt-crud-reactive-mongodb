@@ -23,8 +23,8 @@ import static java.util.Collections.singletonList;
 @EnableConfigurationProperties
 public class MongoDBConnectionConfig {
 
-    // ** MongoProperties class is working for config mongodb you can use application.property instead this. (optional)
-    @Primary // ** In some cases, we need to register more than one bean of the same type.
+    // ** MongoProperties class is working for config mongodb you can use application.property instead this. (optional) ** In some cases, we need to register more than one bean of the same type.
+    @Primary
     @Bean
     @ConfigurationProperties(prefix = "mongodb.ttknp") // specify prefix for mapping to property file
     public MongoProperties mongodbTTKNPProperties() {
@@ -34,8 +34,7 @@ public class MongoDBConnectionConfig {
 
     @Bean
     public MongoClient mongoClientConfig(
-            // ** Why it knows it mapped correct bean
-            // ** because i use @Primary
+            // ** Why it knows it mapped correct bean  ** because i use @Primary
             MongoProperties mongoProperties) {
         MongoCredential credential = MongoCredential
                 .createCredential(mongoProperties.getUsername(),

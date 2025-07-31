@@ -1,23 +1,20 @@
 package com.ttknp.understandspringwebfluxandsecurity.controller;
 
-import com.ttknp.understandspringwebfluxandsecurity.configuration.jwt.JWTUtilConfig;
+import com.ttknp.responsecustomservice.constant.CommonStatus;
+import com.ttknp.responsecustomservice.entity.ResponseObject;
+import com.ttknp.understandspringwebfluxandsecurity.configuration.jwt.JWTServiceConfig;
 import com.ttknp.understandspringwebfluxandsecurity.logging.Logback;
-import com.ttknp.understandspringwebfluxandsecurity.model.security.User;
 import com.ttknp.understandspringwebfluxandsecurity.service.security.UserService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -25,9 +22,9 @@ import reactor.core.publisher.Mono;
 public class AuthController {
 
     // **
-    private JWTUtilConfig jwtUtilConfig;
-    private UserService userService;
-    private Logback logback;
+    private final JWTServiceConfig jwtServiceConfig;
+    private final UserService userService;
+    private final Logback logback;
 
     // ** This case getter/setter for mapping to json because i set attribute as private
     // ** Note! non-static inner classes like this can only by instantiated using default, no-argument constructor
@@ -56,28 +53,31 @@ public class AuthController {
     };
 
     @Autowired
-    public AuthController(JWTUtilConfig jwtUtilConfig, UserService userService) {
-        this.jwtUtilConfig = jwtUtilConfig;
+    public AuthController(JWTServiceConfig jwtServiceConfig, UserService userService) {
+        this.jwtServiceConfig = jwtServiceConfig;
         this.userService = userService;
         logback = new Logback(AuthController.class);
     }
 
-    @GetMapping(value = "/login")
+    @PostMapping(value = "/login")
     private Mono<ResponseEntity<AuthResponse>> login(@RequestBody AuthRequest authRequest) {
-        logback.log.debug("logging in {}", authRequest);
-        return userService.searchByUsername(authRequest.username)
+        // logback.log.debug("logging in {}", authRequest);
+       return userService.searchByUsername(authRequest.username)
                 .map(userDetails -> {
                     AuthResponse authResponse = new AuthResponse();
-                    authResponse.token = jwtUtilConfig.generateToken(userDetails);
-                    // if (userDetails.getPassword().equals(authRequest.password)) {
-                    if (getPasswordEncoder().matches(authRequest.password, userDetails.getPassword())) {
-                        return ResponseEntity
-                                .status(202)
-                                .body(authResponse);
-                    } else {
-                        throw new BadCredentialsException("Invalid username or password");
+                    authResponse.token = jwtServiceConfig.generateToken(userDetails);
+                    if (!getPasswordEncoder().matches(authRequest.password, userDetails.getPassword())) { // encoded password
+                        authResponse = new AuthResponse();
                     }
-                }).switchIfEmpty(Mono.error(new BadCredentialsException("Invalid username or password")));
+                    return ResponseEntity
+                            .status((short) CommonStatus.ACCEPTED[0])
+                            .body(authResponse);
+                }).switchIfEmpty( // case on found user
+                        Mono.just(ResponseEntity
+                       .status((short) CommonStatus.ACCEPTED[0])
+                       .body(new AuthResponse()))
+               );
+
     }
 
     // *** auth password that's a Bcrypt code
